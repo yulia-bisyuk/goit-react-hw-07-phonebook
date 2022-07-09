@@ -1,34 +1,40 @@
 import { Formik } from 'formik';
 import { validationSchema } from 'constants/validationSchema';
-import { FormLabel, FormInput, AddContactBtn, ErrorMessage } from './ContactForm.styled';
-import { useAddContactMutation, useGetContactsQuery } from '../../redux/ContactsSlice/ContactsSlice';
+import {
+  FormLabel,
+  FormInput,
+  AddContactBtn,
+  ErrorMessage,
+} from './ContactForm.styled';
+import {
+  useAddContactMutation,
+  useGetContactsQuery,
+} from '../../redux/contacts/contactsApi';
 
 const ContactForm = () => {
-  
   const [addContact] = useAddContactMutation();
-  const {data: contacts} = useGetContactsQuery();
+  const { data: contacts } = useGetContactsQuery();
 
-  const handleSubmit = async ({userName, userNumber}, {resetForm}) => {
-    
-    if (contacts.some(contact => contact.name.toLowerCase() === userName.toLowerCase()))
-    {
+  const handleSubmit = async ({ userName, userNumber }, { resetForm }) => {
+    if (
+      contacts.some(
+        contact => contact.name.toLowerCase() === userName.toLowerCase()
+      )
+    ) {
       resetForm();
       return alert(`${userName} is already in contacts`);
     }
 
     try {
       await addContact({ name: userName, phone: userNumber });
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
     }
 
-   resetForm();
-
+    resetForm();
   };
 
   return (
-    
     <Formik
       initialValues={{ userName: '', userNumber: '' }}
       validationSchema={validationSchema}
@@ -36,9 +42,8 @@ const ContactForm = () => {
     >
       {formik => (
         <form onSubmit={formik.handleSubmit}>
-
-        <FormLabel htmlFor="userName">
-          Name
+          <FormLabel>
+            Name
             <FormInput
               id="userName"
               name="userName"
@@ -46,30 +51,27 @@ const ContactForm = () => {
               {...formik.getFieldProps('userName')}
             />
             {formik.touched.userName && formik.errors.userName ? (
-             <ErrorMessage>{formik.errors.userName}</ErrorMessage>
-           ) : null}
+              <ErrorMessage>{formik.errors.userName}</ErrorMessage>
+            ) : null}
           </FormLabel>
-          
-          <FormLabel htmlFor="userNumber">
+
+          <FormLabel>
             Number
-              <FormInput
-                id="userNumber"
-                name="userNumber"
-                type="text"
-                {...formik.getFieldProps('userNumber')}
+            <FormInput
+              id="userNumber"
+              name="userNumber"
+              type="text"
+              {...formik.getFieldProps('userNumber')}
             />
             {formik.touched.userNumber && formik.errors.userNumber ? (
-             <ErrorMessage>{formik.errors.userNumber}</ErrorMessage>
-           ) : null}
+              <ErrorMessage>{formik.errors.userNumber}</ErrorMessage>
+            ) : null}
           </FormLabel>
 
-        <AddContactBtn type="submit">Add contact</AddContactBtn>
- 
-      </form>
+          <AddContactBtn type="submit">Add contact</AddContactBtn>
+        </form>
       )}
-      
-      </Formik>
-
+    </Formik>
   );
 };
 

@@ -3,7 +3,7 @@ import Filter from '../Filter';
 import ContactList from '../ContactList';
 import { ThemeProvider } from 'styled-components';
 import theme from '../../constants/theme';
-import BeatLoader from "react-spinners/BeatLoader";
+import BeatLoader from 'react-spinners/BeatLoader';
 import {
   Wrapper,
   PhonebookTitle,
@@ -12,8 +12,8 @@ import {
   Note,
 } from './App.styled';
 import { useSelector } from 'react-redux';
-import { getFilterValue } from 'redux/FilterSlice/FilterSlice';
-import { useGetContactsQuery } from '../../redux/ContactsSlice/ContactsSlice';
+import { getFilterValue } from 'redux/filter/filterSelectors';
+import { useGetContactsQuery } from '../../redux/contacts/contactsApi';
 
 export const App = () => {
   const filter = useSelector(getFilterValue);
@@ -22,43 +22,51 @@ export const App = () => {
     data: contacts,
     isFetching,
     isError,
-    isSuccess } = useGetContactsQuery();
+    isSuccess,
+  } = useGetContactsQuery();
+
+  //не змогла придумати, як винести це в окремий файл як селектор через те,
+  // що дані приходять асинхронно :(
 
   const getFilteredContacts = () => {
-  
     if (isSuccess)
       return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter.trim().toLowerCase())
-    );
+        contact.name.toLowerCase().includes(filter.trim().toLowerCase())
+      );
   };
 
   const filteredContacts = getFilteredContacts();
-  
+
   return (
     <ThemeProvider theme={theme}>
       <Wrapper>
         <Section>
           <PhonebookTitle>Phonebook</PhonebookTitle>
-          <ContactForm/>
+          <ContactForm />
         </Section>
 
         <Section>
           <ContactsTitle>Contacts</ContactsTitle>
           <Filter />
 
-          {isError && <Note>Oops! Something went wrong...</Note>} 
-          
-          {isFetching && <Note><BeatLoader
-            color={theme.darkBlue} loading={true} size={10} margin={2} />
-          </Note>} 
-      
-          {isSuccess && filteredContacts.length === 0
-            && <Note>No contacts here</Note>}
-          
-          {isSuccess && <ContactList
-              contacts={filteredContacts}
-          />} 
-        
+          {isError && <Note>Oops! Something went wrong...</Note>}
+
+          {isFetching && (
+            <Note>
+              <BeatLoader
+                color={theme.darkBlue}
+                loading={true}
+                size={10}
+                margin={2}
+              />
+            </Note>
+          )}
+
+          {isSuccess && filteredContacts.length === 0 && (
+            <Note>No contacts here</Note>
+          )}
+
+          {isSuccess && <ContactList contacts={filteredContacts} />}
         </Section>
       </Wrapper>
     </ThemeProvider>
